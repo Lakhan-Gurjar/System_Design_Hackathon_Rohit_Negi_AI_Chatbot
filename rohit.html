@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rohit Negi AI Chatbot</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Animations --- */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes typing { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 4px var(--accent-color); }
+            50% { box-shadow: 0 0 16px 4px var(--accent-color); }
+            100% { box-shadow: 0 0 4px var(--accent-color); }
+        }
+        
+        /* --- Color & Theme Variables --- */
+        :root {
+            --bg-primary-light: #f4f7f9; --bg-secondary-light: #ffffff; --text-primary-light: #1a202c; --text-secondary-light: #718096; --accent-color-light: #3182ce; --border-color-light: #e2e8f0; --bot-message-bg-light: #edf2f7; --user-message-text-light: #ffffff; --shadow-color-light: rgba(0, 0, 0, 0.06); --glass-bg-light: rgba(255, 255, 255, 0.7); --accent-gradient-light: linear-gradient(45deg, #3182ce, #2b6cb0); --danger-color-light: #e53e3e;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #121212; --bg-secondary: #1a1a1a; --text-primary: #e4e6eb; --text-secondary: #a8b3cf; --accent-color: #4299e1; --accent-color-trans: rgba(66, 153, 225, 0.2); --border-color: #2d3748; --bot-message-bg: #2d3748; --user-message-text: #ffffff; --shadow-color: rgba(0, 0, 0, 0.4); --glass-bg: rgba(26, 26, 26, 0.6); --accent-gradient: linear-gradient(45deg, #4299e1, #3182ce); --danger-color: #fc8181;
+        }
+        [data-theme="light"] {
+            --bg-primary: var(--bg-primary-light); --bg-secondary: var(--bg-secondary-light); --text-primary: var(--text-primary-light); --text-secondary: var(--text-secondary-light); --accent-color: var(--accent-color-light); --accent-color-trans: rgba(49, 130, 206, 0.2); --border-color: var(--border-color-light); --bot-message-bg: var(--bot-message-bg-light); --user-message-text: var(--user-message-text-light); --shadow-color: var(--shadow-color-light); --glass-bg: var(--glass-bg-light); --accent-gradient: var(--accent-gradient-light); --danger-color: var(--danger-color-light);
+        }
+        
+        /* --- Base & Layout --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); display: flex; justify-content: center; align-items: center; transition: background-color 0.4s, color 0.4s; }
+        .view { width: 100%; height: 100%; display: none; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .view.active { display: flex; }
+        .chatbot-container { width: 100%; max-width: 1200px; height: 95vh; max-height: 900px; background-color: var(--bg-secondary); border-radius: 24px; box-shadow: 0 20px 60px -10px var(--shadow-color); border: 1px solid var(--border-color); display: flex; overflow: hidden; transition: background-color 0.4s, border-color 0.4s; }
+        
+        /* --- Media Panel (Left) --- */
+        .media-panel { width: 340px; padding: 30px; display: flex; flex-direction: column; align-items: center; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-right: 1px solid var(--border-color); transition: background 0.4s, border-color 0.4s; overflow-y: auto; }
+        @supports not (backdrop-filter: blur(20px)) { .media-panel { background: var(--bg-primary); } }
+        .media-panel::-webkit-scrollbar { display: none; }
+        .media-panel h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--text-primary); font-weight: 600; text-align: center; }
+        .profile-photo { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--accent-color); margin-bottom: 20px; box-shadow: 0 0 25px var(--accent-color-trans); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .profile-photo:hover { transform: scale(1.05) rotate(4deg); }
+        .profile-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .profile-video { width: 100%; border-radius: 16px; overflow: hidden; margin-top: auto; box-shadow: 0 8px 25px -5px var(--shadow-color); }
+        .profile-video video { width: 100%; display: block; }
+        
+        /* --- Chat Panel (Right) --- */
+        .chat-panel { flex-grow: 1; display: flex; flex-direction: column; background-color: var(--bg-secondary); }
+        .chat-header { padding: 20px 30px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 10; transition: all 0.4s; }
+        .header-title { font-size: 1.5rem; font-weight: 600; }
+        .header-controls { display: flex; align-items: center; gap: 20px; }
+        .icon-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; position: relative; width: 25px; height: 25px; transition: color 0.3s ease; }
+        .icon-btn:hover { color: var(--accent-color); }
+        #theme-toggle-btn .fa-sun, #theme-toggle-btn .fa-moon { position: absolute; left:0; top:0; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease; }
+        #theme-toggle-btn .fa-sun { opacity: 0; transform: translateY(-25px) rotate(-90deg); }
+        #theme-toggle-btn.toggled .fa-sun { opacity: 1; transform: translateY(0) rotate(0); }
+        #theme-toggle-btn.toggled .fa-moon { opacity: 0; transform: translateY(25px) rotate(90deg); }
+        
+        .chat-window { flex-grow: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .chat-window::-webkit-scrollbar { width: 6px; } .chat-window::-webkit-scrollbar-track { background: transparent; } .chat-window::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 10px; }
+        
+        .message { max-width: 80%; padding: 12px 20px; border-radius: 18px; line-height: 1.6; word-wrap: break-word; font-size: 0.95rem; animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .bot-message { background-color: var(--bot-message-bg); color: var(--text-primary); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .user-message { background-image: var(--accent-gradient); color: var(--user-message-text); align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 4px 15px -3px var(--accent-color-trans); }
+        .typing-indicator { display: flex; align-items: center; gap: 5px; padding: 12px 18px; background-color: var(--bot-message-bg); border-radius: 18px; border-bottom-left-radius: 4px; align-self: flex-start; }
+        .typing-indicator span { width: 8px; height: 8px; background-color: var(--text-secondary); border-radius: 50%; animation: typing 1.5s infinite ease-in-out; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        .chat-input-area { display: flex; padding: 20px 30px; border-top: 1px solid var(--border-color); gap: 15px; align-items: center; background: var(--bg-secondary); }
+        #chat-input { flex-grow: 1; padding: 14px 20px; border-radius: 25px; border: 1px solid var(--border-color); background-color: var(--bg-primary); color: var(--text-primary); font-size: 1rem; outline: none; transition: all 0.3s ease; }
+        #chat-input:focus { border-color: var(--accent-color); box-shadow: 0 0 0 4px var(--accent-color-trans); }
+        .action-btn { background-color: var(--accent-color); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 1.3rem; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; flex-shrink: 0; }
+        .action-btn:hover { transform: scale(1.1); box-shadow: 0 5px 15px -2px var(--accent-color-trans); }
+        .action-btn:disabled { background-color: var(--text-secondary); cursor: not-allowed; transform: scale(1); box-shadow: none; }
+        #mic-btn.listening { animation: pulseGlow 1.5s infinite ease-in-out; }
+        
+        .chat-footer { padding: 15px 30px; background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); text-align: center; transition: all 0.4s; font-size: 0.9rem; }
+        .chat-footer a, .chat-footer button { color: var(--text-secondary); text-decoration: none; margin: 0 15px; transition: color 0.3s; cursor: pointer; background: none; border: none; font-family: 'Poppins', sans-serif; font-size: inherit; }
+        .chat-footer a:hover, .chat-footer button:hover { color: var(--accent-color); }
+        
+        /* --- History View --- */
+        .history-container { width: 100%; max-width: 900px; height: 95vh; max-height: 900px; background-color: var(--bg-secondary); border-radius: 24px; box-shadow: 0 20px 60px -10px var(--shadow-color); border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; }
+        .history-header { padding: 20px 30px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .history-header h1 { font-size: 1.8rem; font-weight: 600; }
+        .history-controls button { background-color: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
+        .history-controls button:hover { opacity: 0.9; }
+        #clear-history-btn { background-color: var(--danger-color); color: white; }
+        .history-list { flex-grow: 1; padding: 20px 30px; overflow-y: auto; }
+        .history-list::-webkit-scrollbar { width: 6px; } .history-list::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 10px; }
+        .history-item { background-color: var(--bg-primary); padding: 15px 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--accent-color); cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .history-item:hover { transform: translateY(-4px); box-shadow: 0 5px 15px var(--shadow-color); }
+        .history-item-date { font-weight: 500; font-size: 1.05rem; margin-bottom: 8px; color: var(--text-primary); }
+        .history-item-preview { font-size: 0.9rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .no-history { text-align: center; color: var(--text-secondary); padding: 50px 20px; font-size: 1.1rem; }
+        .no-history i { font-size: 2.5rem; margin-bottom: 15px; display: block; }
+
+        /* --- Responsive --- */
+        @media (max-width: 900px) {
+            body { padding: 0; }
+            .view { padding: 0; }
+            .chatbot-container, .history-container { height: 100vh; max-height: none; border-radius: 0; border: none; }
+            .media-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Chat View -->
+    <div id="chat-view" class="view active">
+        <div class="chatbot-container">
+            <aside class="media-panel">
+                <h2>About Rohit</h2>
+                <div class="profile-photo"><img id="rohit-photo" src="./Screenshot 2025-06-08 024537.png" alt="Rohit Negi"></div>
+                <div class="profile-video">
+                    <video id="rohit-video" autoplay loop controls>
+                        <source src="./Welcome…..mp4" type="video/mp4">
+                    </video>
+                </div>
+            </aside>
+            <main class="chat-panel">
+                <header class="chat-header">
+                    <h1 class="header-title">Rohit Negi AI</h1>
+                    <div class="header-controls">
+                        <button id="theme-toggle-btn" class="icon-btn" title="Toggle Theme">
+                            <i class="fa-solid fa-moon"></i><i class="fa-solid fa-sun"></i>
+                        </button>
+                    </div>
+                </header>
+                <div class="chat-window" id="chat-window"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Ask me about Rohit or use the mic..." autocomplete="off">
+                    <button id="mic-btn" class="action-btn" title="Use Voice Input"><i class="fa-solid fa-microphone"></i></button>
+                    <button id="send-btn" class="action-btn" title="Send Message"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+                <footer class="chat-footer">
+                    <a id="history-link"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+                    <a onclick="alert('Settings feature coming soon!')"><i class="fa-solid fa-gear"></i> Settings</a>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- History Page View -->
+    <div id="history-view" class="view">
+        <div class="history-container">
+            <header class="history-header">
+                <h1>Chat History</h1>
+                <div class="history-controls">
+                    <button id="back-to-chat-btn"><i class="fa-solid fa-arrow-left"></i> Back to Chat</button>
+                </div>
+            </header>
+            <div class="history-list" id="history-list"></div>
+             <footer class="chat-footer">
+                <button id="clear-history-btn"><i class="fa-solid fa-trash-can"></i> Clear All History</button>
+            </footer>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM Element References ---
+        const chatView = document.getElementById('chat-view'), historyView = document.getElementById('history-view');
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const chatWindow = document.getElementById('chat-window'), chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn'), micBtn = document.getElementById('mic-btn');
+        const historyLink = document.getElementById('history-link'), backToChatBtn = document.getElementById('back-to-chat-btn');
+        const historyList = document.getElementById('history-list'), clearHistoryBtn = document.getElementById('clear-history-btn');
+        const htmlElement = document.documentElement;
+
+        // --- GEMINI API CONFIGURATION ---
+        const GEMINI_API_KEY = "AIzaSyCf1m3IQiwA_lpF2dgKfb2NEDADBDfrr_U";
+        const MODEL_NAME = "gemini-1.5-flash";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`;
+        const systemInstructionText = 'You are Rohit Negi, who answer to Gym, Love-life, GATE exam, Placement journey, coding related problem.when someone ask anything other than this you can answer but not in deep as you are not expert. you uses bollywood references and memes to joke and explain things also. Apart from that, You love coding, play cricket and read novels. If user ask you anything that is related to your details like your father or mother name, reply him rudely like you are dumb person. But if he/she ask problem related to Gym, Love-life, GATE exam, Placement journey, coding response in a detail manner. After giving explaining something ask chamk gya? but not necessary it depends on you. Reply in hindi mix english always until user asks for specific language. You are a great patriot also nation comes first for you. You are rich. Rohit Negi, 1999 born from Kotdwar, Uttarakhand refused to settle for a Rs. 20,000 package and kept working until he secured a job worth 2.5 crore with Uber. Negi is a second-year MTech student from #IITGuwahati who got placed in his college after 3 rounds conducted by Uber International. Negi was not a studious child since school, which troubled his family. you got 54 marks in 12th class. you have given IIT JEE twice and failed both the time. you used to play mini-militia during your drop year coaching. your IIT-JEE rank is AIR-354000. you did b.tech from tier-3 college (GBPIET Ghurdauri) and learned a lot during that time also. Post your graduation, you had severe difficulties in getting a job. But Negi would not settle for a smaller package, rather worked hard to pass the #GATE (Graduate Aptitude Test in Engineering) exam. GATE is a competitive exam for undergraduate engineering students to get a gate pass into masters. “Around one lakh students appeared for GATE in 2020 and I secured 202 rank. This rank helped me get admission into IIT Guwahati for MTech,” Rohit told Dailyo in an interview.In your college placements, the second year Negi got placed in Uber International after the test and interview, with a whopping offer of a 2.5 crore job as a software engineer. you would be working in the country for a year after your graduation, and later will be working at an international Uber office. For any system design question related refer to guruji (aditya tondan, he is your friend and was with you in IIT). Reply without any hesitations and you do not sugarcoat things. all the image and video here are from your instagram. you also have a youtube channel where you have a free dsa course and many other videos related to placements, your experiences, podcasts etc. your channel name is "Coder Army" and other channel name is "Rohit Negi". Your youtube channel links are "https://www.youtube.com/@CoderArmy9" and "https://www.youtube.com/@Rohit_Negi". you can share videos from these channels when necessary as per user requirements. when someone thanks you or take leave,  you answer the question at last put jai hind jai bharat.';
+        
+        let currentChatHistory = [];
+        const initialMessage = "Hello Coder army, Kaise hein aap sab log, I hope aap ache honge, to bataiye mai kya madad karu?";
+
+        // --- THEME & VIEW LOGIC ---
+        const applyTheme = (theme) => {
+            htmlElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            themeToggleBtn.classList.toggle('toggled', theme === 'dark');
+        };
+        themeToggleBtn.addEventListener('click', () => applyTheme(htmlElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+        historyLink.addEventListener('click', () => { saveCurrentChatSession(); renderHistory(); chatView.classList.remove('active'); historyView.classList.add('active'); });
+        backToChatBtn.addEventListener('click', () => { chatView.classList.add('active'); historyView.classList.remove('active'); });
+        
+        // --- SPEECH-TO-TEXT (VOICE INPUT) - MORE ROBUST ERROR HANDLING ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        let isListening = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-IN';
+            recognition.interimResults = true;
+
+            micBtn.addEventListener('click', () => {
+                if (isListening) {
+                    recognition.stop();
+                    return;
+                }
+                try {
+                    recognition.start();
+                } catch(e) {
+                    console.error("Error starting recognition:", e);
+                    addMessage("Could not start voice recognition. Please try again.", 'bot');
+                }
+            });
+
+            recognition.onstart = () => {
+                isListening = true;
+                micBtn.classList.add('listening');
+                chatInput.placeholder = "Listening...";
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                micBtn.classList.remove('listening');
+                chatInput.placeholder = "Ask me about Rohit or use the mic...";
+            };
+
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        chatInput.value = event.results[i][0].transcript;
+                    }
+                }
+                
+                if (finalTranscript) {
+                    chatInput.value = finalTranscript;
+                    sendMessage();
+                }
+            };
+            
+            recognition.onerror = (event) => {
+                console.error("Speech Recognition Error:", event.error);
+                if (event.error === 'no-speech' || event.error === 'aborted') {
+                    // These are common, non-critical errors. Just let onend() handle UI cleanup.
+                } else if (event.error === 'not-allowed') {
+                    addMessage("<b>Mic access denied.</b> Please allow microphone access in your browser settings to use voice input.", 'bot');
+                } else if (event.error === 'network') {
+                    addMessage("<b>Network Error.</b> Could not connect to the speech service. Please check your internet connection and ensure no firewalls/VPNs are blocking it. Running from a local server often helps.", 'bot');
+                } else {
+                    addMessage(`An unexpected speech error occurred: ${event.error}`, 'bot');
+                }
+            };
+        } else {
+            micBtn.style.display = 'none';
+        }
+
+        // --- HISTORY MANAGEMENT ---
+        const getHistoryLog = () => JSON.parse(localStorage.getItem('chatHistoryLog')) || [];
+        const saveHistoryLog = (log) => localStorage.setItem('chatHistoryLog', JSON.stringify(log));
+
+        const saveCurrentChatSession = () => {
+            if (currentChatHistory.length > 1) {
+                const log = getHistoryLog();
+                log.unshift({ id: `chat-${Date.now()}`, timestamp: new Date().toLocaleString(), messages: currentChatHistory });
+                saveHistoryLog(log);
+            }
+            resetCurrentChat();
+        };
+
+        const renderHistory = () => {
+            historyList.innerHTML = '';
+            const log = getHistoryLog();
+            if (log.length === 0) {
+                historyList.innerHTML = '<div class="no-history"><i class="fa-solid fa-box-open"></i><p>No chat history found.</p></div>';
+                return;
+            }
+            log.forEach(session => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.dataset.sessionId = session.id;
+                const previewText = session.messages.find(m => m.role === 'user')?.parts[0].text || 'Chat with Rohit Negi AI';
+                item.innerHTML = `<div class="history-item-date">${session.timestamp}</div><div class="history-item-preview">${previewText}</div>`;
+                item.addEventListener('click', () => loadChatFromHistory(session.id));
+                historyList.appendChild(item);
+            });
+        };
+        
+        const loadChatFromHistory = (sessionId) => {
+            const log = getHistoryLog();
+            const session = log.find(s => s.id === sessionId);
+            if(session) {
+                chatWindow.innerHTML = '';
+                currentChatHistory = session.messages;
+                currentChatHistory.forEach(msg => addMessage(msg.parts[0].text, msg.role === 'user' ? 'user' : 'bot'));
+                historyView.classList.remove('active');
+                chatView.classList.add('active');
+            }
+        };
+
+        clearHistoryBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete all chat history? This action cannot be undone.')) {
+                localStorage.removeItem('chatHistoryLog');
+                renderHistory();
+            }
+        });
+
+        // --- CORE CHAT LOGIC ---
+        const addMessage = (text, sender) => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', `${sender}-message`);
+            messageElement.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+            chatWindow.appendChild(messageElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        };
+        
+        const showTypingIndicator = (show) => {
+            let indicator = document.getElementById('typing-indicator');
+            if (show) {
+                if (!indicator) {
+                    indicator = document.createElement('div');
+                    indicator.className = 'message typing-indicator'; 
+                    indicator.id = 'typing-indicator';
+                    indicator.innerHTML = '<span></span><span></span><span></span>';
+                    chatWindow.appendChild(indicator);
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }
+            } else {
+                indicator?.remove();
+            }
+        };
+
+        const toggleInputDisabled = (disabled) => {
+            chatInput.disabled = disabled;
+            sendBtn.disabled = disabled;
+            micBtn.disabled = disabled;
+            if(!disabled) chatInput.focus();
+        };
+
+        const sendMessage = async () => {
+            const userMessage = chatInput.value.trim();
+            if (userMessage === '') return;
+             if (GEMINI_API_KEY === "YOUR_API_KEY_HERE") { 
+                addMessage("<strong>Error:</strong> Please replace 'YOUR_API_KEY_HERE' with your actual Gemini API Key in the script.", 'bot'); 
+                return; 
+             }
+
+            addMessage(userMessage, 'user');
+            currentChatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+            chatInput.value = '';
+            toggleInputDisabled(true);
+            showTypingIndicator(true);
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: currentChatHistory, systemInstruction: { parts: [{ text: systemInstructionText }] } })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error.message || `HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const botResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (botResponse) {
+                    addMessage(botResponse, 'bot');
+                    currentChatHistory.push({ role: "model", parts: [{ text: botResponse }] });
+                } else {
+                    const blockReason = data.promptFeedback?.blockReason || 'an unknown reason';
+                    addMessage(`My safety filters blocked this. Reason: ${blockReason}.`, 'bot');
+                }
+            } catch (error) {
+                console.error("API Error:", error);
+                addMessage(`An error occurred: ${error.message}`, 'bot');
+            } finally {
+                showTypingIndicator(false);
+                toggleInputDisabled(false);
+            }
+        };
+
+        const resetCurrentChat = () => {
+            chatWindow.innerHTML = '';
+            currentChatHistory = [{ role: "model", parts: [{ text: initialMessage }] }];
+            addMessage(initialMessage, 'bot');
+        };
+        
+        // --- INITIALIZATION ---
+        applyTheme(localStorage.getItem('theme') || 'dark');
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        resetCurrentChat();
+    });
+</script>
+
+</body>
+</html>

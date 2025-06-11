@@ -1,0 +1,15 @@
+{
+  "name": "rohit_negi_chatbot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lakhan",
+  "type": "module",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/genai": "^1.4.0"
+  }
+}
