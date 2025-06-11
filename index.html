@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rohit Negi AI Chatbot</title>
+    
+    <!-- External Stylesheets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Your Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Main Chat View -->
+    <div id="chat-view" class="view active">
+        <div class="chatbot-container">
+            <aside class="media-panel">
+                <h2>About Rohit</h2>
+                <div class="profile-photo"><img id="rohit-photo" src="./Screenshot 2025-06-08 024537.png" alt="Rohit Negi"></div>
+                <div class="profile-video">
+                    <video id="rohit-video" autoplay loop controls>
+                        <source src="./Welcome…..mp4" type="video/mp4">
+                    </video>
+                </div>
+            </aside>
+            <main class="chat-panel">
+                <header class="chat-header">
+                    <h1 class="header-title">Rohit Negi AI</h1>
+                    <div class="header-controls">
+                        <button id="theme-toggle-btn" class="icon-btn" title="Toggle Theme">
+                            <i class="fa-solid fa-moon"></i><i class="fa-solid fa-sun"></i>
+                        </button>
+                    </div>
+                </header>
+                <div class="chat-window" id="chat-window"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Ask me about Rohit or use the mic..." autocomplete="off">
+                    <button id="mic-btn" class="action-btn" title="Use Voice Input"><i class="fa-solid fa-microphone"></i></button>
+                    <button id="send-btn" class="action-btn" title="Send Message"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+                <footer class="chat-footer">
+                    <a id="history-link"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+                    <a onclick="alert('Settings feature coming soon!')"><i class="fa-solid fa-gear"></i> Settings</a>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- History Page View -->
+    <div id="history-view" class="view">
+        <div class="history-container">
+            <header class="history-header">
+                <h1>Chat History</h1>
+                <div class="history-controls">
+                    <button id="back-to-chat-btn"><i class="fa-solid fa-arrow-left"></i> Back to Chat</button>
+                </div>
+            </header>
+            <div class="history-list" id="history-list"></div>
+             <footer class="chat-footer">
+                <button id="clear-history-btn"><i class="fa-solid fa-trash-can"></i> Clear All History</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Your Custom JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+</html>
