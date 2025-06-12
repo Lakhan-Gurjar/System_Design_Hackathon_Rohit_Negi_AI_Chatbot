@@ -21,7 +21,7 @@
 
 /* --- Base & Layout --- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { height: 100%; overflow: hidden; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
 body { font-family: 'Poppins', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); display: flex; justify-content: center; align-items: center; transition: background-color 0.4s, color 0.4s; }
 .view { width: 100%; height: 100%; display: none; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .view.active { display: flex; }
@@ -69,9 +69,49 @@ body { font-family: 'Poppins', sans-serif; background-color: var(--bg-primary); 
 .action-btn:disabled { background-color: var(--text-secondary); cursor: not-allowed; transform: scale(1); box-shadow: none; }
 #mic-btn.listening { animation: pulseGlow 1.5s infinite ease-in-out; }
 
-.chat-footer { padding: 15px 30px; background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); text-align: center; transition: all 0.4s; font-size: 0.9rem; }
+.chat-footer { padding: 15px 30px; background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); text-align: center; transition: all 0.4s; font-size: 1rem; }
 .chat-footer a, .chat-footer button { color: var(--text-secondary); text-decoration: none; margin: 0 15px; transition: color 0.3s; cursor: pointer; background: none; border: none; font-family: 'Poppins', sans-serif; font-size: inherit; }
 .chat-footer a:hover, .chat-footer button:hover { color: var(--accent-color); }
+
+/* --- The Smooth Button --- */
+.smooth-btn {
+    /* Reset and Basic Styling */
+    border: none;
+    background-color: #e65c5c; /* A soft red for a destructive action */
+    color: white;
+    padding: 0.8em 1.5em;
+    border-radius: 50px; /* Fully rounded corners */
+    font-family: sans-serif;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+
+    /* Flexbox for aligning icon and text */
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75em; /* Space between icon and text */
+
+    /* The "Smoothness" Magic! */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+/* --- Interactive States --- */
+.smooth-btn:hover {
+    background-color: #d94b4b; /* Slightly darker on hover */
+    transform: translateY(-3px); /* Lifts the button up */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Adds a soft shadow */
+}
+
+.smooth-btn:active {
+    transform: translateY(0); /* Pushes the button back down */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* Reduces the shadow */
+}
+
+/* For keyboard navigation accessibility */
+.smooth-btn:focus-visible {
+    outline: 3px solid #007bff;
+    outline-offset: 3px;
+}
 
 /* --- History View --- */
 .history-container { width: 100%; max-width: 900px; height: 95vh; max-height: 900px; background-color: var(--bg-secondary); border-radius: 24px; box-shadow: 0 20px 60px -10px var(--shadow-color); border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; }
